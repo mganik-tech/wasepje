@@ -33,3 +33,5 @@ steps:
       # - 'DATABASE_URL=sm://[PROJECT_NUMBER]/my-db-url'
 images:
   - 'asia-southeast2-docker.pkg.dev/mganik-system/wasepje-repo/wasepje:$COMMIT_SHA'
+options:
+  logging: CLOUD_LOGGING_ONLY
