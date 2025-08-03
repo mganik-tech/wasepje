@@ -55,11 +55,11 @@ jobs:
 
       - name: Run Prisma Migrations
         run: |
-          gcloud run jobs execute wasepje-migration \
-            --image ${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest \
-            --region ${{ secrets.CLOUD_RUN_REGION }} \
-            --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }} \
-            --wait
+          IMAGE_NAME=${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest
+          docker run --rm \
+            --env DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            $IMAGE_NAME \
+            bun run prisma migrate deploy
 
       - name: Deploy to Google Cloud Run
         id: deploy
