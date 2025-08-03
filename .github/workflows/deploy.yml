@@ -52,6 +52,15 @@ jobs:
           region: ${{ secrets.CLOUD_RUN_REGION }}
           platform: managed
           allow_unauthenticated: true
+          env_vars: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+            CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
+            NEXT_PUBLIC_PRO_MONTHLY_URL=${{ secrets.NEXT_PUBLIC_PRO_MONTHLY_URL }}
+            NEXT_PUBLIC_PRO_ANNUALLY_URL=${{ secrets.NEXT_PUBLIC_PRO_ANNUALLY_URL }}
+            NEXT_PUBLIC_BILLING_PORTAL_URL=${{ secrets.NEXT_PUBLIC_BILLING_PORTAL_URL }}
+            STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+            STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
       - name: Output Cloud Run Service URL
         run: |
