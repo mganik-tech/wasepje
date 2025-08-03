@@ -53,6 +53,14 @@ jobs:
             -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
+      - name: Run Prisma Migrations
+        run: |
+          gcloud run jobs execute wasepje-migration \
+            --image ${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest \
+            --region ${{ secrets.CLOUD_RUN_REGION }} \
+            --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            --wait
+
       - name: Deploy to Google Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
@@ -60,8 +68,7 @@ jobs:
           service: mganik-wasepje-service
           image: ${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest
           region: ${{ secrets.CLOUD_RUN_REGION }}
-          platform: managed
-          allow_unauthenticated: true
+          flags: '--platform managed --allow-unauthenticated --port 3000'
           env_vars: |
             NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ secrets.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
