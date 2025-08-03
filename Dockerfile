@@ -45,6 +45,14 @@ ENV STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
 ENV STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
 
 # Build the Next.js application
+# First, apply database migrations to ensure the schema is up-to-date.
+# Note: This requires the DATABASE_URL to be passed as a build-arg and for your database to be accessible.
+RUN bun run prisma migrate deploy
+
+# Then, generate the Prisma client with the latest types.
+RUN bun run prisma generate
+
+# Finally, build the Next.js application.
 RUN bun run build
 
 # Run Prisma migration command to apply the schema to the database
