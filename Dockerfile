@@ -1,6 +1,6 @@
 # ---- Base Stage ----
 # Use the official Bun image as the base
-FROM oven/bun:1.1.18 as base
+FROM oven/bun:1.1.18 AS base
 
 # Add ARG instructions for your secrets
 ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
@@ -17,7 +17,7 @@ WORKDIR /app
 
 # ---- Dependencies Stage ----
 # Use a new stage to install dependencies
-FROM base as dependencies
+FROM base AS dependencies
 
 # Copy package.json and bun.lockb to the container
 COPY package.json bun.lockb ./
@@ -27,7 +27,7 @@ RUN bun install --frozen-lockfile
 
 # ---- Build Stage ----
 # Use a new stage to build the application
-FROM base as builder
+FROM base AS builder
 
 # Copy all the necessary files from the base
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -47,10 +47,10 @@ ENV STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
 # Build the Next.js application
 # First, apply database migrations to ensure the schema is up-to-date.
 # Note: This requires the DATABASE_URL to be passed as a build-arg and for your database to be accessible.
-RUN bun run prisma migrate deploy
+RUN bun db:push
 
 # Then, generate the Prisma client with the latest types.
-RUN bun run prisma generate
+# RUN bun run prisma generate
 
 # Finally, build the Next.js application.
 RUN bun run build
