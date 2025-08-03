@@ -41,6 +41,7 @@ jobs:
         run: |
           IMAGE_NAME=${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest
           docker build \
+            --build-arg NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ secrets.NEXT_PUBLIC_UMAMI_WEBSITE_ID }} \
             --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} \
             --build-arg CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }} \
             --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
@@ -62,6 +63,7 @@ jobs:
           platform: managed
           allow_unauthenticated: true
           env_vars: |
+            NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ secrets.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
             CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
