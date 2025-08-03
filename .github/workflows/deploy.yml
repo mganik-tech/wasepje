@@ -40,7 +40,16 @@ jobs:
       - name: Build and Push Docker Image to Artifact Registry
         run: |
           IMAGE_NAME=${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest
-          docker build -t $IMAGE_NAME .
+          docker build \
+            --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} \
+            --build-arg CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }} \
+            --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            --build-arg NEXT_PUBLIC_PRO_MONTHLY_URL=${{ secrets.NEXT_PUBLIC_PRO_MONTHLY_URL }} \
+            --build-arg NEXT_PUBLIC_PRO_ANNUALLY_URL=${{ secrets.NEXT_PUBLIC_PRO_ANNUALLY_URL }} \
+            --build-arg NEXT_PUBLIC_BILLING_PORTAL_URL=${{ secrets.NEXT_PUBLIC_BILLING_PORTAL_URL }} \
+            --build-arg STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }} \
+            --build-arg STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }} \
+            -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
       - name: Deploy to Google Cloud Run
