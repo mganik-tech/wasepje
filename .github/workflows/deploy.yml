@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      ENV_CODE: 'production'
+      ENV_CODE: 'Production'
       NEXT_PUBLIC_BASE_API_URL: 'http://localhost:3000'
       NEXTAUTH_URL: 'http://127.0.0.1:3001'
 
