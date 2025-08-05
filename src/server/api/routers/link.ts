@@ -19,7 +19,7 @@ export const linkRouter = createTRPCRouter({
 
     return ctx.db.link.findMany({
       take: 10,
-      where: { userId: ctx.clerkId },
+      // Removed user filter
       include: {
         _count: {
           select: {
@@ -35,7 +35,7 @@ export const linkRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.link.findFirst({
-        where: { id: input.id, userId: ctx.clerkId },
+        where: { id: input.id },
         include: { phones: true },
       });
     }),
@@ -59,13 +59,16 @@ export const linkRouter = createTRPCRouter({
 
       try {
         const link = await ctx.db.link.update({
-          where: { id: input.id, userId: ctx.clerkId },
-          data: { name: input.name, slug: input.slug, message: input.message },
+          where: { id: input.id },
+          data: {
+            name: input.name,
+            slug: input.slug,
+            message: input.message,
+          },
         });
         return link;
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          // The .code property can be accessed in a type-safe manner
           if (e.code === "P2002") {
             throw new TRPCError({
               code: "BAD_REQUEST",
@@ -105,7 +108,6 @@ export const linkRouter = createTRPCRouter({
             slug: input.slug,
             message: input.message,
             nextPhone: 0,
-            userId: ctx.clerkId,
             phones: {
               createMany: {
                 data: input.phones.map((p) => ({ number: p.value })),
@@ -120,7 +122,6 @@ export const linkRouter = createTRPCRouter({
         return link;
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          // The .code property can be accessed in a type-safe manner
           if (e.code === "P2002") {
             throw new TRPCError({
               code: "BAD_REQUEST",
@@ -133,16 +134,11 @@ export const linkRouter = createTRPCRouter({
     }),
 
   delete: privateProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      }),
-    )
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const link = await ctx.db.link.delete({
         where: {
           id: input.id,
-          userId: ctx.clerkId,
         },
       });
 
@@ -169,18 +165,18 @@ export const linkRouter = createTRPCRouter({
         include: { phones: true },
       });
 
-      // update next phone
       const { nextPhone, phones } = link;
-      let newNextPhone = Number(nextPhone + 1);
-      if (newNextPhone > phones.length - 1) {
+      let newNextPhone = nextPhone + 1;
+      if (newNextPhone >= phones.length) {
         newNextPhone = 0;
       }
+
       await ctx.db.link.update({
         data: { nextPhone: newNextPhone },
         where: { id: input.id },
       });
 
-      return await ctx.db.click.create({
+      return ctx.db.click.create({
         data: { ...input.metadata, linkId: input.id },
       });
     }),
