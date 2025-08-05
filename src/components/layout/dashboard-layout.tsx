@@ -1,21 +1,11 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 
-import { Check, Home, Menu } from "lucide-react";
+import { Home, Menu } from "lucide-react";
 
-import SubscribeButton from "@/components/molecule/subscribe-button";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { usePlan } from "@/hooks/use-plan";
-import { api } from "@/utils/api";
 
 import ClickableLogo from "../molecule/clickable-logo";
 
