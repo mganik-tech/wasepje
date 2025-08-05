@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 
-import { useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
-import { customAlphabet } from "nanoid";
 import slugify from "slugify";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
@@ -51,26 +49,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { useHostname } from "@/hooks/use-hostname";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { usePlan } from "@/hooks/use-plan";
+
 import { api, type RouterOutputs } from "@/utils/api";
 
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
   const [parent] = useAutoAnimate();
-  const { user } = useUser();
 
-  const sync = api.user.sync.useMutation();
   const getAll = api.link.getAll.useQuery();
-
-  useEffect(() => {
-    if (user) {
-      sync.mutate({
-        email: user.primaryEmailAddress?.emailAddress ?? "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
 
   return (
     <DashboardLayout>
@@ -129,11 +116,6 @@ const initPhone = { id: 0, value: "" };
 function CreateLinkForm() {
   const [parent] = useAutoAnimate();
   const { smOrHigher } = useMediaQuery();
-  const plan = usePlan();
-
-  const alphabet =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  const random = customAlphabet(alphabet, 5)(5);
 
   const host = useHostname();
   const ctx = api.useContext();
@@ -234,10 +216,10 @@ function CreateLinkForm() {
                       `${slugify(value, {
                         lower: true,
                         strict: true,
-                      })}${plan === "free" ? `-${random}` : ""}`,
+                      })}`,
                     );
                   } else {
-                    setSlug(plan === "free" ? random : "");
+                    setSlug("");
                   }
                 }}
               />
@@ -245,21 +227,12 @@ function CreateLinkForm() {
             <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
                 <Label htmlFor="slug">Slug</Label>
-                {plan === "free" && (
-                  <Link
-                    href="/#pricing"
-                    className="rounded-sm border bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
-                  >
-                    Unlock premium slug
-                  </Link>
-                )}
               </div>
               <Input
                 id="slug"
                 name="slug"
                 placeholder="syarikat-saya"
                 value={slug}
-                disabled={plan === "free"}
                 onChange={(e) => setSlug(`${e.target.value.trim()}`)}
               />
               <p className="text-xs text-muted-foreground">

@@ -23,12 +23,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { useHostname } from "@/hooks/use-hostname";
-import { usePlan } from "@/hooks/use-plan";
+
 import { api } from "@/utils/api";
 
 function EditLink() {
   const router = useRouter();
-  const plan = usePlan();
+
   const host = useHostname();
   const ctx = api.useContext();
 
@@ -52,7 +52,6 @@ function EditLink() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [message, setMessage] = useState("");
-  const [postfix, setPostfix] = useState("");
 
   const link = getOne.data;
 
@@ -61,12 +60,8 @@ function EditLink() {
       setName(link.name);
       setSlug(link.slug);
       setMessage(link.message ?? "");
-
-      if (plan === "free") {
-        setPostfix(link.slug.substring(link.slug.length - 5));
-      }
     }
-  }, [link, plan]);
+  }, [link]);
 
   if (!link) return null;
 
@@ -137,10 +132,10 @@ function EditLink() {
                       `${slugify(value, {
                         lower: true,
                         strict: true,
-                      })}${plan === "free" ? `-${postfix}` : ""}`,
+                      })}`,
                     );
                   } else {
-                    setSlug(plan === "free" ? postfix : "");
+                    setSlug("");
                   }
                 }}
               />
@@ -150,14 +145,6 @@ function EditLink() {
                 <Label htmlFor="slug" className="">
                   Slug
                 </Label>
-                {plan === "free" && (
-                  <Link
-                    href="/#pricing"
-                    className="rounded-sm border bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
-                  >
-                    Unlock premium slug
-                  </Link>
-                )}
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 {host}/{slug}
@@ -167,7 +154,6 @@ function EditLink() {
                 name="slug"
                 className="mt-2 w-full max-w-md"
                 value={slug}
-                disabled={plan === "free"}
                 onChange={(e) => setSlug(e.target.value.trim())}
               />
             </div>

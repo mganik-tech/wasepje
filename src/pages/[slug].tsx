@@ -12,12 +12,13 @@ import ClickableLogo from "@/components/molecule/clickable-logo";
 import { Button } from "@/components/ui/button";
 import { db } from "@/server/db";
 import { api } from "@/utils/api";
+import { useSearchParams } from "next/navigation";
 
 export const getServerSideProps = (async (ctx) => {
   const slug = String(ctx.params?.slug);
   const link = await db.link.findFirst({
     where: { slug },
-    include: { user: true, phones: true },
+    include: { phones: true },
   });
 
   if (!link) {
@@ -26,7 +27,7 @@ export const getServerSideProps = (async (ctx) => {
 
   return {
     props: {
-      plan: link.user.plan,
+      plan: "pro",
       link: { id: link.id, message: link.message },
       nextPhone: link.phones.at(link.nextPhone)?.number,
     },
@@ -46,6 +47,11 @@ function RedirectPage({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  const searchParams = useSearchParams();
+  const text = searchParams.get("text");
+  const inBoundId = searchParams.get("inBoundId");
+  console.log(link);
 
   const [countdown, setCountdown] = useState(2);
   const hasEnded = countdown === 0;
@@ -87,10 +93,20 @@ function RedirectPage({
     plan: "free" | "pro";
     link: { id: string; message: string | null };
   }) => {
-    let url = `https://wa.me/${nextPhone}`;
+    const searchParams = new URLSearchParams(window.location.search);
+    const text = searchParams.get("text") ?? "";
+    const inboundId = searchParams.get("inboundId") ?? "";
 
-    if (link?.message) {
-      url = url + `?text=${encodeURI(String(link.message))}`;
+    // Replace variables in the message
+    let parsedMessage = link.message ?? "";
+    parsedMessage = parsedMessage
+      .replace(/\$\{text\}/g, text)
+      .replace(/\$\{inbound ID\}/g, inboundId);
+
+    // Build WhatsApp URL
+    let url = `https://wa.me/${nextPhone}`;
+    if (parsedMessage) {
+      url += `?text=${encodeURIComponent(parsedMessage)}`;
     }
 
     const ua = UAParser(window.navigator.userAgent);
@@ -106,6 +122,7 @@ function RedirectPage({
     updateNextPhone.mutate({ id: link.id, metadata });
 
     void router.push(url);
+
     if (plan === "free") {
       const popUnder = window.open("https://go.wasepje.com/shopee", "_blank");
       if (popUnder) window.focus();
@@ -130,23 +147,6 @@ function RedirectPage({
           <ClickableLogo />
         </div>
       </main>
-    );
-  }
-
-  if (plan === "free") {
-    return (
-      <div className="flex h-[100dvh] max-h-[100dvh] w-full items-center justify-center">
-        <Button
-          ref={buttonRef}
-          onClick={() => redirect({ link, plan: "free" })}
-          disabled={!hasEnded}
-          className="transition-all"
-        >
-          {hasEnded
-            ? "click to continue"
-            : `redirecting in ${countdown} seconds`}
-        </Button>
-      </div>
     );
   }
 

@@ -2,12 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import { Github, MoveRight } from "lucide-react";
 import BackgroundPlayer from "next-video/background-player";
 
 import Footer from "@/components/molecule/footer";
-import PricingTable from "@/components/molecule/pricing-table";
+
 import SEOHead from "@/components/molecule/seo-head";
 import {
   Accordion,
@@ -47,7 +45,7 @@ export default function Index() {
             </Link>
           </div>
           <Button size="sm" variant="ghost" asChild>
-            <Link href="/dashboard/links">Log in</Link>
+            <Link href="/dashboard/links">Dashboard Links</Link>
           </Button>
         </nav>
       </header>
@@ -62,39 +60,6 @@ export default function Index() {
             wasep je, the open-source whatsapp link rotator, wasap.my
             alternative.
           </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-2 sm:flex-row">
-            <SignedOut>
-              <SignInButton forceRedirectUrl="/dashboard/links">
-                <Button asChild className="w-full space-x-1 sm:w-auto">
-                  <Link href="/dashboard/links">
-                    <span>Get Started</span>
-                    <MoveRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <Button asChild className="w-full space-x-1 sm:w-auto">
-                <Link href="/dashboard/links">
-                  <span>Go to Dashboard</span>
-                  <MoveRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </SignedIn>
-            <Button
-              asChild
-              className="w-full space-x-1 sm:w-auto"
-              variant="secondary"
-            >
-              <Link
-                href="https://github.com/afrieirham/wasepje"
-                target="_blank"
-              >
-                <Github className="h-4 w-4" />
-                <span>Star us on GitHub</span>
-              </Link>
-            </Button>
-          </div>
         </div>
         <div className="mt-16 flex w-full items-center justify-center px-2">
           <Image
@@ -220,12 +185,6 @@ export default function Index() {
         </div>
       </div>
 
-      <div id="pricing" className="w-full border-t px-8 py-10 md:py-16">
-        <h2 className="text-center text-3xl font-black">
-          Start now for free or Upgrade to Pro!
-        </h2>
-        <PricingTable showFree />
-      </div>
       <Footer />
     </div>
   );
