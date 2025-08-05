@@ -1,62 +1,42 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-}
-
-model User {
-    id        String   @id
-    email     String   @unique
-    plan      Plan     @default(free)
-    stripeId  String?  @unique
-    Link      Link[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Link {
-    id        String   @id @default(cuid())
-    name      String
-    slug      String   @unique
-    message   String?
-    nextPhone Int
-    phones    Phone[]
-    clicks    Click[]
-    userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  message   String?
+  nextPhone Int
+  phones    Phone[]
+  clicks    Click[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Phone {
-    id        String   @id @default(cuid())
-    number    String
-    linkId    String
-    link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  number    String
+  linkId    String
+  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Click {
-    id        String   @id @default(cuid())
-    browser   String?
-    country   String?
-    continent String?
-    device    String?
-    os        String?
-    referrer  String?
-    linkId    String?
-    Link      Link?    @relation(fields: [linkId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-}
-
-enum Plan {
-    free
-    pro
+  id        String   @id @default(cuid())
+  browser   String?
+  country   String?
+  continent String?
+  device    String?
+  os        String?
+  referrer  String?
+  linkId    String?
+  Link      Link?    @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
