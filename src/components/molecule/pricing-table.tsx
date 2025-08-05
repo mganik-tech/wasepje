@@ -16,7 +16,6 @@ import useUserCountry from "@/hooks/use-user-country";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-import SubscribeButton from "./subscribe-button";
 
 function PricingTable({ showFree }: { showFree?: boolean }) {
   const { country } = useUserCountry();
@@ -129,15 +128,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
               <FeatureItem>Link clicks count</FeatureItem>
             </ul>
           </CardContent>
-          <CardFooter>
-            <SubscribeButton
-              billing={billing}
-              className="flex w-full space-x-2"
-            >
-              <span>Choose Pro</span>
-              <MoveRight className="h-4 w-4" />
-            </SubscribeButton>
-          </CardFooter>
+          <CardFooter></CardFooter>
         </Card>
       </div>
     </>

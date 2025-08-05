@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { SignInButton } from "@clerk/nextjs";
 import { countries } from "country-list-json";
-
-import { Github } from "lucide-react";
 
 import PublicHeader from "@/components/molecule/public-header";
 import SEOHead from "@/components/molecule/seo-head";
@@ -70,17 +67,7 @@ function Click2Chat() {
         </Button>
       </form>
       <div className="mx-auto flex w-full flex-row items-center justify-center space-x-2 px-2 py-6 md:hidden">
-        <Button asChild variant="ghost" size="sm" className="text-xs">
-          <Link href="https://github.com/afrieirham/wasepje" target="_blank">
-            <Github className="mr-2 h-4 w-4" />
-            Star us on GitHub
-          </Link>
-        </Button>
-        <SignInButton>
-          <Button variant="outline" size="sm" className="text-xs">
-            Sign Up
-          </Button>
-        </SignInButton>
+        <Button asChild variant="ghost" size="sm" className="text-xs"></Button>
       </div>
     </div>
   );

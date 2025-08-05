@@ -1,11 +1,9 @@
-import Link from "next/link";
 import React, { type MutableRefObject, useRef, useState } from "react";
 
 import { Check, Clipboard, Download, QrCode } from "lucide-react";
 import { QRCode } from "react-qrcode-logo";
 
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { usePlan } from "@/hooks/use-plan";
 
 import { Button } from "../ui/button";
 import {
@@ -79,8 +77,6 @@ function QRCodeGenerator({ url }: { url: string }) {
 export default QRCodeGenerator;
 
 function QRControl({ url }: { url: string }) {
-  const plan = usePlan();
-
   const [copied, setCopied] = useState(false);
 
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -144,41 +140,24 @@ function QRControl({ url }: { url: string }) {
       </div>
 
       <div className="space-y-4 px-8">
-        {plan === "free" && (
-          <div className="text-center">
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/#pricing">Unlock QR Customization</Link>
-            </Button>
-          </div>
-        )}
         <div className="flex items-center space-x-2">
           <Switch
             id="show-logo"
             checked={showLogo}
-            disabled={plan === "free"}
             onCheckedChange={() => setShowLogo(!showLogo)}
           />
-          <Label
-            aria-disabled={plan === "free"}
-            className="aria-disabled:opacity-50"
-            htmlFor="show-logo"
-          >
+          <Label className="aria-disabled:opacity-50" htmlFor="show-logo">
             Show Logo
           </Label>
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label
-            aria-disabled={plan === "free"}
-            className="aria-disabled:opacity-50"
-            htmlFor="custom-logo"
-          >
+          <Label className="aria-disabled:opacity-50" htmlFor="custom-logo">
             Custom Logo
           </Label>
           <Input
             id="custom-logo"
             type="file"
             ref={logoUploadRef}
-            disabled={plan === "free"}
             accept="image/png, image/jpeg, image/jpg"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -196,7 +175,6 @@ function QRControl({ url }: { url: string }) {
             size="sm"
             variant="link"
             className="text-start"
-            disabled={plan === "free"}
             onClick={() => {
               if (logoUploadRef.current) {
                 logoUploadRef.current.value = "";
@@ -211,14 +189,10 @@ function QRControl({ url }: { url: string }) {
           <input
             type="color"
             value={bgColor}
-            disabled={plan === "free"}
             onChange={(e) => setBgColor(e.currentTarget.value)}
             className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:opacity-50"
           ></input>
-          <label
-            aria-disabled={plan === "free"}
-            className="text-sm font-medium aria-disabled:opacity-50"
-          >
+          <label className="text-sm font-medium aria-disabled:opacity-50">
             Background Color
           </label>
         </div>
@@ -226,14 +200,10 @@ function QRControl({ url }: { url: string }) {
           <input
             type="color"
             value={fgColor}
-            disabled={plan === "free"}
             onChange={(e) => setFgCOlor(e.currentTarget.value)}
             className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:opacity-50"
           ></input>
-          <label
-            aria-disabled={plan === "free"}
-            className="text-sm font-medium aria-disabled:opacity-50"
-          >
+          <label className="text-sm font-medium aria-disabled:opacity-50">
             Foreground Color
           </label>
         </div>

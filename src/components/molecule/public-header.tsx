@@ -3,7 +3,6 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { Github, MoveRight } from "lucide-react";
-import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 function PublicHeader() {
   return (
@@ -23,30 +22,6 @@ function PublicHeader() {
             />
             <p className="font-bold">WasepJe.com</p>
           </Link>
-        </div>
-
-        <div className="hidden space-x-4 md:flex md:flex-1 md:justify-end">
-          <Button asChild variant="outline">
-            <Link href="https://github.com/afrieirham/wasepje" target="_blank">
-              <Github className="mr-2 h-4 w-4" />
-              Star us on GitHub
-            </Link>
-          </Button>
-          <SignedOut>
-            <SignInButton forceRedirectUrl="/dashboard/links">
-              <Button>
-                <Link href="/dashboard/links">Sign Up</Link>
-              </Button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <Button asChild>
-              <Link href="/dashboard/links">
-                Go to Dashboard
-                <MoveRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </SignedIn>
         </div>
       </nav>
     </header>

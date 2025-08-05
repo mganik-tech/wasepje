@@ -2,11 +2,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-import { useUser } from "@clerk/nextjs";
-
 import { Check, Home, Menu } from "lucide-react";
 
-import ClerkUserButton from "@/components/molecule/clerk-user-button";
 import SubscribeButton from "@/components/molecule/subscribe-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,18 +33,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user } = useUser();
-
-  const sync = api.user.sync.useMutation();
-
-  useEffect(() => {
-    if (user) {
-      sync.mutate({
-        email: user.primaryEmailAddress?.emailAddress ?? "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[280px_1fr]">
@@ -70,9 +55,6 @@ export default function DashboardLayout({
                 </Link>
               ))}
             </nav>
-          </div>
-          <div className="mt-auto p-4">
-            <UpgradeCTA />
           </div>
         </div>
       </div>
@@ -106,14 +88,8 @@ export default function DashboardLayout({
                   ))}
                 </div>
               </nav>
-              <div className="mt-auto">
-                <UpgradeCTA />
-              </div>
             </SheetContent>
           </Sheet>
-          <div>
-            <ClerkUserButton />
-          </div>
         </header>
         <main className="flex flex-1 flex-col overflow-scroll p-4 sm:p-8">
           {children}
@@ -121,41 +97,4 @@ export default function DashboardLayout({
       </div>
     </div>
   );
-}
-
-function UpgradeCTA() {
-  const plan = usePlan();
-
-  if (plan === "free")
-    return (
-      <Card>
-        <CardHeader className="px-4 pb-2 pt-4">
-          <CardTitle>Upgrade to Pro</CardTitle>
-          <CardDescription>
-            Unlock more customizability with Pro
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6 px-4 pb-4 pt-2">
-          <ul className="text-sm">
-            <li className="flex items-center space-x-2">
-              <Check className="h-4 w-4" />
-              <span>Instant link redirect</span>
-            </li>
-            <li className="flex items-center space-x-2">
-              <Check className="h-4 w-4" />
-              <span>Customize QR</span>
-            </li>
-            <li className="flex items-center space-x-2">
-              <Check className="h-4 w-4" />
-              <span>Customize link slugs</span>
-            </li>
-          </ul>
-          <SubscribeButton billing="monthly" className="w-full">
-            Upgrade
-          </SubscribeButton>
-        </CardContent>
-      </Card>
-    );
-
-  return null;
 }
