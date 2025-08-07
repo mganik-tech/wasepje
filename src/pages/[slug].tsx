@@ -48,13 +48,8 @@ function RedirectPage({
   const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-  const searchParams = useSearchParams();
-  const text = searchParams.get("text");
-  const inBoundId = searchParams.get("inBoundId");
-  console.log(link);
-
   const [countdown, setCountdown] = useState(2);
-  const hasEnded = countdown === 0;
+  // const hasEnded = countdown === 0;
 
   const updateNextPhone = api.link.updateNextPhone.useMutation();
 
@@ -101,7 +96,7 @@ function RedirectPage({
     let parsedMessage = link.message ?? "";
     parsedMessage = parsedMessage
       .replace(/\$\{text\}/g, text)
-      .replace(/\$\{inbound ID\}/g, inboundId);
+      .replace(/\$\{inboundId\}/g, inboundId);
 
     // Build WhatsApp URL
     let url = `https://wa.me/${nextPhone}`;
