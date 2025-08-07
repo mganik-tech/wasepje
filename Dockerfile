@@ -1,73 +1,39 @@
 # ---- Base Stage ----
-# Use the official Bun image as the base
 FROM oven/bun:1.1.18 AS base
-
-# Add ARG instructions for your secrets
-ARG DATABASE_URL
-
-# Set the working directory inside the container
 WORKDIR /app
-
-# ---- Dependencies Stage ----
-# Use a new stage to install dependencies
-FROM base AS dependencies
-
-# Copy package.json and bun.lockb to the container
-COPY package.json bun.lockb ./
-
-# Install dependencies using Bun
-RUN bun install --frozen-lockfile
 
 # ---- Build Stage ----
-# Use a new stage to build the application
 FROM base AS builder
 
-# Copy all the necessary files from the base
-COPY --from=dependencies /app/node_modules ./node_modules
+# Set ARG and ENV
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
+# Copy project files
+COPY bun.lockb package.json ./
+RUN bun install --frozen-lockfile
+
 COPY . .
 
-# Set the environment variables for the build
-ENV DATABASE_URL=$DATABASE_URL
-
-# Build the Next.js application
-# First, apply database migrations to ensure the schema is up-to-date.
-# Note: This requires the DATABASE_URL to be passed as a build-arg and for your database to be accessible.
-RUN bun db:push
-
-# Then, generate the Prisma client with the latest types.
-# RUN bun run prisma generate
-
-# Finally, build the Next.js application.
+# Prisma and build steps
+RUN bunx prisma generate
 RUN bun run build
 
-# Run Prisma migration command to apply the schema to the database
-# `prisma migrate deploy` is used for production environments.
-# It ensures the database schema is up to date based on the migration files.
-RUN bun run prisma migrate deploy
-
 # ---- Production Stage ----
-# Use a smaller base image for the final production container
-FROM oven/bun:1.1.18
-
-# Set the working directory
+FROM oven/bun:1.1.18 AS runner
 WORKDIR /app
 
-# Copy only the necessary files from the builder stage
-# This keeps the final image size minimal
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lockb ./bun.lockb
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/bun.lockb ./bun.lockb
 COPY --from=builder /app/prisma ./prisma
 
-# The port Next.js uses by default
 EXPOSE 3000
 
-# Set environment variables for runtime
-# These will be provided securely by Cloud Run
+# Runtime ENV (injected by Cloud Run)
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 
-ENV DATABASE_URL=$DATABASE_URL
-
-# Start the Next.js application in production mode
 CMD ["bun", "run", "start"]
