@@ -5,17 +5,16 @@ WORKDIR /app
 # ---- Build Stage ----
 FROM base AS builder
 
-# Set ARG and ENV
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
-# Copy project files
-COPY bun.lockb package.json ./
-RUN bun install --frozen-lockfile
-
+# Copy full source BEFORE install so postinstall scripts work
 COPY . .
 
-# Prisma and build steps
+# Install dependencies
+RUN bun install --frozen-lockfile
+
+# Prisma + Build
 RUN bunx prisma generate
 RUN bun run build
 
@@ -32,7 +31,6 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-# Runtime ENV (injected by Cloud Run)
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
