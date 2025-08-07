@@ -3,7 +3,7 @@
 FROM oven/bun:1.1.18 AS base
 
 # Add ARG instructions for your secrets
-ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
+
 ARG DATABASE_URL
 
 
@@ -33,7 +33,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 # Set the environment variables for the build
-ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
+
 
 
 ENV DATABASE_URL=$DATABASE_URL
@@ -79,7 +79,7 @@ EXPOSE 3000
 
 # Set environment variables for runtime
 # These will be provided securely by Cloud Run
-ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
+
 
 
 ENV DATABASE_URL=$DATABASE_URL
