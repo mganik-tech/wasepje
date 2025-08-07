@@ -3,13 +3,7 @@
 FROM oven/bun:1.1.18 AS base
 
 # Add ARG instructions for your secrets
-
 ARG DATABASE_URL
-
-
-ARG NEXT_PUBLIC_PRO_MONTHLY_URL
-ARG NEXT_PUBLIC_PRO_ANNUALLY_URL
-ARG NEXT_PUBLIC_BILLING_PORTAL_URL
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -33,14 +27,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 # Set the environment variables for the build
-
-
-
 ENV DATABASE_URL=$DATABASE_URL
-ENV NEXT_PUBLIC_PRO_MONTHLY_URL=$NEXT_PUBLIC_PRO_MONTHLY_URL
-ENV NEXT_PUBLIC_PRO_ANNUALLY_URL=$NEXT_PUBLIC_PRO_ANNUALLY_URL
-ENV NEXT_PUBLIC_BILLING_PORTAL_URL=$NEXT_PUBLIC_BILLING_PORTAL_URL
-
 
 # Build the Next.js application
 # First, apply database migrations to ensure the schema is up-to-date.
@@ -80,12 +67,7 @@ EXPOSE 3000
 # Set environment variables for runtime
 # These will be provided securely by Cloud Run
 
-
-
 ENV DATABASE_URL=$DATABASE_URL
-ENV NEXT_PUBLIC_PRO_MONTHLY_URL=$NEXT_PUBLIC_PRO_MONTHLY_URL
-ENV NEXT_PUBLIC_PRO_ANNUALLY_URL=$NEXT_PUBLIC_PRO_ANNUALLY_URL
-ENV NEXT_PUBLIC_BILLING_PORTAL_URL=$NEXT_PUBLIC_BILLING_PORTAL_URL
 
 # Start the Next.js application in production mode
 CMD ["bun", "run", "start"]

@@ -1,0 +1,56 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.CLOUD_RUN_REGION }}
+  SERVICE_NAME: mganik-wasepje-service
+  IMAGE: ${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev
+
+      - name: Set gcloud project
+        run: gcloud config set project $PROJECT_ID
+
+      - name: Prisma generate
+        run: bunx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t $IMAGE \
+            --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            .
+          
+      - name: Push Docker image to Artifact Registry
+        run: docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy $SERVICE_NAME \
+            --image $IMAGE \
+            --platform managed \
+            --region $REGION \
+            --allow-unauthenticated \
+            --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }}
