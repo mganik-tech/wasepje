@@ -8,7 +8,6 @@ COPY package.json bun.lockb bunfig.toml tsconfig.json next.config.mjs ./
 COPY prisma ./prisma
 COPY public ./public
 COPY src ./src
-COPY .env.production .env.production
 
 # Install dependencies and build
 RUN bun install --frozen-lockfile
@@ -28,7 +27,6 @@ COPY --from=builder /app/bun.lockb ./bun.lockb
 COPY --from=builder /app/bunfig.toml ./bunfig.toml
 COPY --from=builder /app/next.config.mjs ./next.config.mjs
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/.env.production ./.env.production
 
 # Set runtime environment
 ENV NODE_ENV=production
