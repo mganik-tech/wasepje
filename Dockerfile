@@ -11,13 +11,12 @@ RUN npx prisma generate
 
 COPY . .
 
-# Accept env vars at build time
-ARG DATABASE_URL
-ARG NEXT_PUBLIC_PRO_MONTHLY_URL
-ARG NEXT_PUBLIC_PRO_ANNUALLY_URL
-ARG NEXT_PUBLIC_BILLING_PORTAL_URL
+# Build-time env vars (valid URLs for Zod validation)
+ARG DATABASE_URL="postgresql://user:pass@localhost:5432/dbname"
+ARG NEXT_PUBLIC_PRO_MONTHLY_URL="https://example.com/monthly"
+ARG NEXT_PUBLIC_PRO_ANNUALLY_URL="https://example.com/annually"
+ARG NEXT_PUBLIC_BILLING_PORTAL_URL="https://example.com/billing"
 
-# Export them for Next.js build validation
 ENV DATABASE_URL=${DATABASE_URL}
 ENV NEXT_PUBLIC_PRO_MONTHLY_URL=${NEXT_PUBLIC_PRO_MONTHLY_URL}
 ENV NEXT_PUBLIC_PRO_ANNUALLY_URL=${NEXT_PUBLIC_PRO_ANNUALLY_URL}
