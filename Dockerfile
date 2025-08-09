@@ -1,37 +1,30 @@
-# ---- 1. Builder Stage ----
-FROM oven/bun:1.1 AS builder
-
+# -------------------------
+# Stage 1: Builder
+# -------------------------
+FROM oven/bun:1 AS builder
 WORKDIR /app
 
-# Copy dependency and config files first (for better caching)
+# Copy dependency & config files first
 COPY package.json bun.lockb tsconfig.json next.config.mjs ./
 COPY prisma ./prisma
 COPY public ./public
 COPY src ./src
 
-# Install dependencies and build
+# Install dependencies & build
 RUN bun install --frozen-lockfile
 RUN bun run build
 
-# ---- 2. Runtime Stage ----
-FROM oven/bun:1.1-slim AS runner
-
+# -------------------------
+# Stage 2: Runner
+# -------------------------
+FROM oven/bun:1 AS runner
 WORKDIR /app
 
-# Copy build output and minimal runtime deps
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lockb ./bun.lockb
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
-COPY --from=builder /app/prisma ./prisma
+# Copy built app & node_modules from builder
+COPY --from=builder /app ./
 
-# Set runtime environment
-ENV NODE_ENV=production
-ENV PORT=3000
+# Ensure Prisma Client is generated
+RUN bunx prisma generate
 
-EXPOSE 3000
-
-# Run Prisma migrations before starting Next.js (JSON array syntax to remove warning)
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun start"]
+# Run Prisma migrations before start
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start"]
