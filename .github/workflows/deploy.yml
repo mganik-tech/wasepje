@@ -2,55 +2,43 @@ name: Deploy to Cloud Run
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: ${{ secrets.CLOUD_RUN_REGION }}
+  PROJECT_ID: mganik-system
+  REGION: asia-southeast2
   SERVICE_NAME: mganik-wasepje-service
-  IMAGE: ${{ secrets.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/wasepje-repo/wasepje:latest
+  REPO_NAME: wasepje-repo
+  IMAGE_NAME: wasepje
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Set up gcloud CLI
+      - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker $REGION-docker.pkg.dev
-
-      - name: Set gcloud project
+      - name: Configure gcloud
         run: gcloud config set project $PROJECT_ID
 
-      - name: Prisma generate
-        run: bunx prisma generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Build Docker image
+      - name: Build & Push Docker image to Artifact Registry
         run: |
-          docker build -t $IMAGE \
-            --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
-            .
-          
-      - name: Push Docker image to Artifact Registry
-        run: docker push $IMAGE
+          gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME .
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy $SERVICE_NAME \
-            --image $IMAGE \
-            --platform managed \
-            --region $REGION \
+            --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME \
+            --platform=managed \
+            --region=$REGION \
             --allow-unauthenticated \
-            --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }}
+            --port=3000
