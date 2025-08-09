@@ -1,53 +1,40 @@
-# Use official Node.js LTS image
-FROM node:20-slim AS builder
+# ---- Base build stage ----
+FROM node:20-slim AS build
 
-# Install dependencies for Prisma (OpenSSL, etc.)
+# Install system deps (for Prisma + OpenSSL)
 RUN apt-get update -y && apt-get install -y openssl
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy only package files & prisma schema first (better cache)
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (no package-lock.json, so npm install)
+RUN npm install
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Copy application source
+# Copy the rest of the application
 COPY . .
 
 # Build TypeScript
 RUN npm run build
 
-# Run Prisma migrations at build time (optional)
-# If you want to run them at container startup instead, remove this line
-RUN npx prisma migrate deploy
+# ---- Production stage ----
+FROM node:20-slim AS production
 
-# -------- Runtime Stage --------
-FROM node:20-slim AS runner
-
-# Install OpenSSL in runtime image
+# Install system deps for runtime
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy built files from builder
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+# Copy node_modules, prisma client, and build output from build stage
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/dist ./dist
 COPY package*.json ./
 
-# Environment
-ENV NODE_ENV=production
-ENV PORT=8080
-
-# Expose the port Cloud Run expects
-EXPOSE 8080
-
-# Start app
-CMD ["node", "dist/index.js"]
+# Run Prisma migrations at container startup
+CMD npx prisma migrate deploy && node dist/index.js
